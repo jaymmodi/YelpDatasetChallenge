@@ -1,6 +1,7 @@
 package Task1;
 
 
+import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
@@ -18,9 +19,12 @@ public class MainClass {
             String objPerLine = br.readLine();
 
             JSONParser parser = new JSONParser();
-            Object obj = parser.parse(objPerLine);
-            System.out.println(obj);
+            JSONObject jsonObject = (JSONObject) parser.parse(objPerLine);
 
+            LuceneIndexWriter luceneIndexWriter = new LuceneIndexWriter(pathToJsonFile,"/reviewIndex");
+            luceneIndexWriter.createIndex(jsonObject);
+
+            luceneIndexWriter.finish();
 
         } catch (IOException e) {
             e.printStackTrace();
