@@ -18,12 +18,13 @@ public class MainClass {
 
         try {
             BufferedReader br = new BufferedReader(new FileReader(new File(pathToJsonFile)));
-            ArrayList<String> jsonObjects = new ArrayList<String>();
-            String jsonObject;
+            ArrayList<JSONObject> jsonObjects = new ArrayList<JSONObject>();
+            JSONParser jsonParser = new JSONParser();
+            String line;
 
-            while ((jsonObject = br.readLine()) != null) {
+            while ((line = br.readLine()) != null) {
                 if (jsonObjects.size() < 10000) {
-                    jsonObjects.add(jsonObject);
+                    jsonObjects.add((JSONObject) jsonParser.parse(line));
                 } else {
                     makeIndex(jsonObjects, pathToJsonFile);
                     jsonObjects.clear();
@@ -31,25 +32,15 @@ public class MainClass {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
     }
 
-    private static void makeIndex(ArrayList<String> jsonObjects, String pathToJsonFile) {
-        JSONParser parser = new JSONParser();
-        LuceneIndexWriter luceneIndexWriter = new LuceneIndexWriter(pathToJsonFile, "/reviewIndex");
+    private static void makeIndex(ArrayList<JSONObject> jsonObjects, String pathToJsonFile) {
+        System.out.println(jsonObjects.size());
 
-        for (String objPerLine : jsonObjects) {
-            JSONObject jsonObject = null;
-            try {
-                jsonObject = (JSONObject) parser.parse(objPerLine);
-                luceneIndexWriter.createIndex(jsonObject);
-                luceneIndexWriter.finish();
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-
-
-        }
-
+        LuceneIndexWriter luceneIndexWriter = new LuceneIndexWriter(pathToJsonFile, "reviewIndex");
+        luceneIndexWriter.createIndex(jsonObjects);
     }
 }

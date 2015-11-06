@@ -14,31 +14,42 @@ import org.json.simple.JSONObject;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Set;
 
 public class LuceneIndexWriter {
 
+    Analyzer analyzer;
     String jsonFilePath;
     String indexPath;
     IndexWriter indexWriter;
+    Directory dir;
+    IndexWriterConfig iwc;
 
     public LuceneIndexWriter(String jsonFilePath, String indexPath) {
-        this.jsonFilePath = jsonFilePath;
-        this.indexPath = indexPath;
-        openIndex();
+        try {
+            this.indexPath = indexPath;
+            this.jsonFilePath = jsonFilePath;
+            this.dir = FSDirectory.open(Paths.get(indexPath));
+            this.analyzer = new StandardAnalyzer();
+            this.iwc = new IndexWriterConfig(analyzer);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
-    public void createIndex(JSONObject jsonObject) {
-        addJSONObject(jsonObject);
+    public void createIndex(ArrayList<JSONObject> jsonObjects) {
+        openIndex();
+        for (JSONObject jsonObject : jsonObjects) {
+            addJSONObject(jsonObject);
+        }
+        finish();
     }
 
     private void openIndex() {
         try {
-            Directory dir = FSDirectory.open(Paths.get(indexPath));
-            Analyzer analyzer = new StandardAnalyzer();
-            IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
-
             iwc.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
             indexWriter = new IndexWriter(dir, iwc);
 
@@ -53,10 +64,10 @@ public class LuceneIndexWriter {
 
         for (Object key : set) {
             Class type = jsonObject.get(key).getClass();
-            String value = (String) jsonObject.get(key);
+            Object value = jsonObject.get(key);
 
             if (type.equals(String.class) && key.toString().equals("review")) {
-                document.add(new StringField(key.toString(), value, Field.Store.NO));
+                document.add(new StringField(key.toString(), value.toString(), Field.Store.NO));
             }
         }
     }
