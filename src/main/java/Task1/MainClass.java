@@ -20,23 +20,17 @@ public class MainClass {
         try {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
             String pathToJsonFile = bufferedReader.readLine();
-            LuceneIndexWriter luceneIndexWriter = new LuceneIndexWriter(pathToJsonFile, "reviewIndex");
+            LuceneIndexWriter luceneIndexWriter = null;
 
-            BufferedReader br = new BufferedReader(new FileReader(new File(pathToJsonFile)));
-            ArrayList<JSONObject> jsonObjects = new ArrayList<JSONObject>();
-            JSONParser jsonParser = new JSONParser();
-            String line;
-
-            int index = 1;
-            while ((line = br.readLine()) != null) {
-                if (jsonObjects.size() < 10000) {
-                    jsonObjects.add((JSONObject) jsonParser.parse(line));
-                } else {
-                    makeIndex(index, jsonObjects, luceneIndexWriter);
-                    jsonObjects.clear();
-                    index++;
-                }
+            if (pathToJsonFile.contains("review")) {
+                luceneIndexWriter = new LuceneIndexWriter(pathToJsonFile, "reviewIndex");
+            } else if (pathToJsonFile.contains("tip")) {
+                luceneIndexWriter = new LuceneIndexWriter(pathToJsonFile, "tipIndex");
             }
+
+
+            parseAndMakeIndex(pathToJsonFile, luceneIndexWriter);
+
             luceneIndexWriter.finish();
             readIndex();
 
@@ -44,6 +38,24 @@ public class MainClass {
             e.printStackTrace();
         } catch (ParseException e) {
             e.printStackTrace();
+        }
+    }
+
+    private static void parseAndMakeIndex(String pathToJsonFile, LuceneIndexWriter luceneIndexWriter) throws IOException, ParseException {
+        BufferedReader br = new BufferedReader(new FileReader(new File(pathToJsonFile)));
+        ArrayList<JSONObject> jsonObjects = new ArrayList<JSONObject>();
+        JSONParser jsonParser = new JSONParser();
+        String line;
+
+        int index = 1;
+        while ((line = br.readLine()) != null) {
+            if (jsonObjects.size() < 10000) {
+                jsonObjects.add((JSONObject) jsonParser.parse(line));
+            } else {
+                makeIndex(index, jsonObjects, luceneIndexWriter);
+                jsonObjects.clear();
+                index++;
+            }
         }
     }
 

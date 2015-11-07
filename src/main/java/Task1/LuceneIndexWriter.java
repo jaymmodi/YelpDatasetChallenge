@@ -60,11 +60,11 @@ public class LuceneIndexWriter {
                 Object value = jsonObject.get(key);
 
                 if (type.equals(String.class) && key.toString().equals("type") && value.toString().equals("review")) {
-                    document.add(new TextField("REVIEW", jsonObject.get("text").toString(), Field.Store.NO));
+                    document.add(new TextField("REVIEW", jsonObject.get("text").toString(), Field.Store.YES));
                     document.add(new StringField("business_id", value.toString(), Field.Store.YES));
                 }
                 if (type.equals(String.class) && key.toString().equals("type") && value.toString().equals("tip")) {
-                    document.add(new TextField("TIP", jsonObject.get("text").toString(), Field.Store.NO));
+                    document.add(new TextField("TIP", jsonObject.get("text").toString(), Field.Store.YES));
                     document.add(new StringField("business_id", value.toString(), Field.Store.YES));
                 }
             }
