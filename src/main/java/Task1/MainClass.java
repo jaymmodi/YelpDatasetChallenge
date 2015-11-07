@@ -1,35 +1,45 @@
 package Task1;
 
 
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.store.FSDirectory;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class MainClass {
 
     public static void main(String[] args) {
-        String pathToJsonFile = "/media/jay/New Volume/Jay/IUB/Fall_2015/Search/Final Project/yelp_dataset_challenge_academic_dataset/yelp_dataset_challenge_academic_dataset/yelp_dataset_challenge_academic_dataset/yelp_academic_dataset_review.json";
+        System.out.println("Please provide the path to 'Yelp Reviews' file ");
 
         try {
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+            String pathToJsonFile = bufferedReader.readLine();
+            LuceneIndexWriter luceneIndexWriter = new LuceneIndexWriter(pathToJsonFile, "reviewIndex");
+
             BufferedReader br = new BufferedReader(new FileReader(new File(pathToJsonFile)));
             ArrayList<JSONObject> jsonObjects = new ArrayList<JSONObject>();
             JSONParser jsonParser = new JSONParser();
             String line;
 
+            int index = 1;
             while ((line = br.readLine()) != null) {
                 if (jsonObjects.size() < 10000) {
                     jsonObjects.add((JSONObject) jsonParser.parse(line));
                 } else {
-                    makeIndex(jsonObjects, pathToJsonFile);
+                    makeIndex(index, jsonObjects, luceneIndexWriter);
                     jsonObjects.clear();
+                    index++;
                 }
             }
+            luceneIndexWriter.finish();
+            readIndex();
+
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ParseException e) {
@@ -37,10 +47,20 @@ public class MainClass {
         }
     }
 
-    private static void makeIndex(ArrayList<JSONObject> jsonObjects, String pathToJsonFile) {
-        System.out.println(jsonObjects.size());
+    private static void readIndex() {
+        try {
+            IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get("reviewIndex")));
+            int totalNumberOfDocs = reader.maxDoc();
+            System.out.println(totalNumberOfDocs);
 
-        LuceneIndexWriter luceneIndexWriter = new LuceneIndexWriter(pathToJsonFile, "reviewIndex");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void makeIndex(int index, ArrayList<JSONObject> jsonObjects, LuceneIndexWriter luceneIndexWriter) {
+        System.out.println(index);
+
         luceneIndexWriter.createIndex(jsonObjects);
     }
 }

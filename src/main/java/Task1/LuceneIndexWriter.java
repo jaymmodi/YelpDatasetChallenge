@@ -6,6 +6,7 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
@@ -33,6 +34,8 @@ public class LuceneIndexWriter {
             this.dir = FSDirectory.open(Paths.get(indexPath));
             this.analyzer = new StandardAnalyzer();
             this.iwc = new IndexWriterConfig(analyzer);
+            this.iwc.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
+            this.indexWriter = new IndexWriter(dir, iwc);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -41,22 +44,11 @@ public class LuceneIndexWriter {
 
 
     public void createIndex(ArrayList<JSONObject> jsonObjects) {
-        openIndex();
         for (JSONObject jsonObject : jsonObjects) {
             addJSONObject(jsonObject);
         }
-        finish();
     }
 
-    private void openIndex() {
-        try {
-            iwc.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
-            indexWriter = new IndexWriter(dir, iwc);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     private void addJSONObject(JSONObject jsonObject) {
         Document document = new Document();
@@ -66,16 +58,22 @@ public class LuceneIndexWriter {
             Class type = jsonObject.get(key).getClass();
             Object value = jsonObject.get(key);
 
-            if (type.equals(String.class) && key.toString().equals("review")) {
-                document.add(new StringField(key.toString(), value.toString(), Field.Store.NO));
+            if (type.equals(String.class) && key.toString().equals("business_id")) {
+                document.add(new StringField("business_id", value.toString(), Field.Store.YES));
+            }
+
+            if (type.equals(String.class) && key.toString().equals("type") && value.toString().equals("review")) {
+                document.add(new TextField("REVIEW", jsonObject.get("text").toString(), Field.Store.NO));
             }
         }
     }
 
     public void finish() {
         try {
+            indexWriter.forceMerge(1);
             indexWriter.commit();
             indexWriter.close();
+            System.out.println("Done");
         } catch (IOException e) {
             System.out.println("We had a problem closing the index: " + e.getMessage());
         }
