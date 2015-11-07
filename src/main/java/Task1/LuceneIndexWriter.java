@@ -63,6 +63,10 @@ public class LuceneIndexWriter {
                     document.add(new TextField("REVIEW", jsonObject.get("text").toString(), Field.Store.NO));
                     document.add(new StringField("business_id", value.toString(), Field.Store.YES));
                 }
+                if (type.equals(String.class) && key.toString().equals("type") && value.toString().equals("tip")) {
+                    document.add(new TextField("TIP", jsonObject.get("text").toString(), Field.Store.NO));
+                    document.add(new StringField("business_id", value.toString(), Field.Store.YES));
+                }
             }
 
             indexWriter.addDocument(document);
