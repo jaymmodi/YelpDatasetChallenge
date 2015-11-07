@@ -53,18 +53,22 @@ public class LuceneIndexWriter {
     private void addJSONObject(JSONObject jsonObject) {
         Document document = new Document();
         Set set = jsonObject.keySet();
+        try {
 
-        for (Object key : set) {
-            Class type = jsonObject.get(key).getClass();
-            Object value = jsonObject.get(key);
+            for (Object key : set) {
+                Class type = jsonObject.get(key).getClass();
+                Object value = jsonObject.get(key);
 
-            if (type.equals(String.class) && key.toString().equals("business_id")) {
-                document.add(new StringField("business_id", value.toString(), Field.Store.YES));
+                if (type.equals(String.class) && key.toString().equals("type") && value.toString().equals("review")) {
+                    document.add(new TextField("REVIEW", jsonObject.get("text").toString(), Field.Store.NO));
+                    document.add(new StringField("business_id", value.toString(), Field.Store.YES));
+                }
             }
 
-            if (type.equals(String.class) && key.toString().equals("type") && value.toString().equals("review")) {
-                document.add(new TextField("REVIEW", jsonObject.get("text").toString(), Field.Store.NO));
-            }
+            indexWriter.addDocument(document);
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
