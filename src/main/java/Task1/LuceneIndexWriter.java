@@ -16,7 +16,6 @@ import org.json.simple.JSONObject;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Set;
 
 public class LuceneIndexWriter {
 
@@ -43,37 +42,25 @@ public class LuceneIndexWriter {
     }
 
 
-    public void createIndex(ArrayList<JSONObject> jsonObjects) {
+    public void createIndex(ArrayList<JSONObject> jsonObjects, String fieldName) {
         for (JSONObject jsonObject : jsonObjects) {
-            addJSONObject(jsonObject);
+            addJSONObject(jsonObject,fieldName);
         }
     }
 
 
-    private void addJSONObject(JSONObject jsonObject) {
+    private void addJSONObject(JSONObject jsonObject,String fieldName) {
         Document document = new Document();
-        Set set = jsonObject.keySet();
+
         try {
-
-            for (Object key : set) {
-                Class type = jsonObject.get(key).getClass();
-                Object value = jsonObject.get(key);
-
-                if (type.equals(String.class) && key.toString().equals("type") && value.toString().equals("review")) {
-                    document.add(new TextField("REVIEW", jsonObject.get("text").toString(), Field.Store.YES));
-                    document.add(new StringField("business_id", value.toString(), Field.Store.YES));
-                }
-                if (type.equals(String.class) && key.toString().equals("type") && value.toString().equals("tip")) {
-                    document.add(new TextField("TIP", jsonObject.get("text").toString(), Field.Store.YES));
-                    document.add(new StringField("business_id", value.toString(), Field.Store.YES));
-                }
-            }
-
+            document.add(new TextField(fieldName, jsonObject.get("text").toString(), Field.Store.YES));
+            document.add(new StringField("business_id", jsonObject.get("business_id").toString(), Field.Store.YES));
             indexWriter.addDocument(document);
-
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+
     }
 
     public void finish() {
