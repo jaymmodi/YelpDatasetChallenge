@@ -44,7 +44,7 @@ public class MainClass {
 
     private static void parseAndMakeIndex(String pathToJsonFile, LuceneIndexWriter luceneIndexWriter, String review) throws IOException, ParseException {
         BufferedReader br = new BufferedReader(new FileReader(new File(pathToJsonFile)));
-        ArrayList<JSONObject> jsonObjects = new ArrayList<JSONObject>();
+        ArrayList<JSONObject> jsonObjects = new ArrayList<>();
         JSONParser jsonParser = new JSONParser();
         String line;
 
@@ -55,6 +55,7 @@ public class MainClass {
             } else if (jsonObjects.size() == 10000) {
                 makeIndex(index, jsonObjects, luceneIndexWriter, review);
                 jsonObjects.clear();
+                jsonObjects.add((JSONObject) jsonParser.parse(line));
                 index++;
             }
         }
