@@ -37,9 +37,7 @@ public class MainClass {
             readIndex("reviewIndex");
             readIndex("tipIndex");
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
+        } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
     }
