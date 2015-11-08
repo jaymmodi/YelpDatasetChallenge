@@ -1,15 +1,11 @@
 package Task1;
 
 
-import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.store.FSDirectory;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import java.io.*;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class MainClass {
@@ -34,8 +30,9 @@ public class MainClass {
             parseAndMakeIndex(pathToTipFile, luceneIndexWriter, "TIP");
             luceneIndexWriter.finish();
 
-            readIndex("reviewIndex");
-            readIndex("tipIndex");
+            Search search = new Search();
+            search.readIndex("reviewIndex");
+            search.readIndex("tipIndex");
 
         } catch (IOException | ParseException e) {
             e.printStackTrace();
@@ -62,17 +59,6 @@ public class MainClass {
         if (jsonObjects.size() < 10000) {
             System.out.println(jsonObjects.get(jsonObjects.size() - 1));
             makeIndex(index, jsonObjects, luceneIndexWriter, review);
-        }
-    }
-
-    private static void readIndex(String indexPath) {
-        try {
-            IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(indexPath)));
-            int totalNumberOfDocs = reader.maxDoc();
-            System.out.println(totalNumberOfDocs);
-
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
