@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Class-Path: lucene-sandbox-5.3.1.jar json-simple-1.1.1.jar junit-4.10.
+ jar hamcrest-core-1.1.jar lucene-queryparser-5.3.1.jar lucene-analyze
+ rs-common-5.3.1.jar lucene-core-5.3.1.jar lucene-queries-5.3.1.jar co
+ mmons-lang3-3.4.jar
+Main-Class: Task1.MainClass
+
