@@ -126,8 +126,8 @@ public class Search {
 
             ScoreDoc[] hits = results.scoreDocs;
 
-            for (int i = 0; i < hits.length; i++) {
-                Document doc = searcher.doc(hits[i].doc);
+            for (ScoreDoc hit : hits) {
+                Document doc = searcher.doc(hit.doc);
                 System.out.println(doc.get("business_id"));
             }
 //            printToFile(hits, count);

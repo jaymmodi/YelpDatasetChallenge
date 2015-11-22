@@ -11,6 +11,7 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.io.IOException;
@@ -54,7 +55,13 @@ public class LuceneIndexWriter {
 
         try {
             if (fieldName.equals("business_id")) {
-                document.add(new StringField("business_id", jsonObject.get("business_id").toString(), Field.Store.YES));
+                JSONArray categoriesArray = (JSONArray) jsonObject.get("categories");
+
+                for (Object obj : categoriesArray) {
+                    document.add(new StringField("category", obj.toString(), Field.Store.YES));
+                    document.add(new StringField("business_id", jsonObject.get("business_id").toString(), Field.Store.YES));
+                }
+
             } else {
                 document.add(new TextField(fieldName, jsonObject.get("text").toString(), Field.Store.YES));
                 document.add(new StringField("business_id", jsonObject.get("business_id").toString(), Field.Store.YES));

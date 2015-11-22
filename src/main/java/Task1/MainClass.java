@@ -13,9 +13,9 @@ public class MainClass {
 
     public static void main(String[] args) {
 
-//        makeIndex();
-        List<String> businessIdList = searchInBusinessIndex("businessIndex");
-        makeFiles("reviewIndex", businessIdList);
+        makeIndex();
+//        List<String> businessIdList = searchInBusinessIndex("businessIndex");
+//        makeFiles("reviewIndex", businessIdList);
     }
 
     private static List<String> searchInBusinessIndex(String businessIndex) {
@@ -29,14 +29,14 @@ public class MainClass {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
 
             System.out.println("Please provide the path to file to index ");
-//            String pathToFile = bufferedReader.readLine();
-            String pathToFile = "yelp_academic_dataset_business.json";
-            luceneIndexWriter = new LuceneIndexWriter(pathToFile, "businessIndex");
+            String pathToFile = bufferedReader.readLine();
+//            String pathToFile = "yelp_academic_dataset_business.json";
+            luceneIndexWriter = new LuceneIndexWriter(pathToFile, "businessIndexWithCategories");
             parseAndMakeIndex(pathToFile, luceneIndexWriter, "business_id");
             luceneIndexWriter.finish();
 
-            String pathToTestFile = "/media/jay/New Volume/Jay/IUB/Fall_2015/Search/Final Project/yelp_dataset_challenge_academic_dataset/yelp_dataset_challenge_academic_dataset/yelp_dataset_challenge_academic_dataset/test.json";
-            parseTestSet(pathToTestFile);
+//            String pathToTestFile = "/media/jay/New Volume/Jay/IUB/Fall_2015/Search/Final Project/yelp_dataset_challenge_academic_dataset/yelp_dataset_challenge_academic_dataset/yelp_dataset_challenge_academic_dataset/test.json";
+//            parseTestSet(pathToTestFile);
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
