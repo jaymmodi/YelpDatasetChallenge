@@ -4,15 +4,11 @@ package Task1;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.LeafReaderContext;
-import org.apache.lucene.index.Term;
+import org.apache.lucene.index.*;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.*;
 import org.apache.lucene.search.similarities.BM25Similarity;
-import org.apache.lucene.search.similarities.LMDirichletSimilarity;
 import org.apache.lucene.store.FSDirectory;
 
 import java.io.BufferedWriter;
@@ -53,7 +49,7 @@ public class Search {
 
             StringBuilder fullText = new StringBuilder();
             try {
-                Query query = getQuery(id);
+                Query query = getQuery("business_id", id);
 
                 int count = getCount(query);
                 if (count > 0) {
@@ -63,7 +59,7 @@ public class Search {
 
                     makeText(fullText, hits);
 
-                    writeToFile(fullText, id);
+                    writeToFile(fullText.toString(), id, "reviewFiles");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -78,8 +74,8 @@ public class Search {
         }
     }
 
-    private Query getQuery(String id) {
-        Term term = new Term("business_id", id);
+    private Query getQuery(String field, String id) {
+        Term term = new Term(field, id);
         return new TermQuery(term);
     }
 
@@ -91,18 +87,16 @@ public class Search {
     }
 
 
-    private void writeToFile(StringBuilder fullText, String id) {
+    private void writeToFile(String fullText, String id, String directoryName) {
         String workingDirectory = System.getProperty("user.dir");
-        File file = new File(workingDirectory + "/reviewFiles/" + id + ".txt");
+        File file = new File(workingDirectory + "/" + directoryName + "/" + id + ".txt");
         try {
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-            FileWriter fileWriter = new FileWriter(file);
 
-            fileWriter.write(fullText.toString());
-            System.out.println("Written to file");
-            fileWriter.close();
+            BufferedWriter br = new BufferedWriter(new FileWriter(file, true));
+
+            br.write(fullText);
+            System.out.println(directoryName);
+            br.close();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -156,5 +150,103 @@ public class Search {
 
         }
         return businessIdList;
+    }
+
+    public void makeCategoryBusinessIdMap(List<String> categoryList) {
+        HashMap<String, List<String>> map = new HashMap<>();
+        try {
+            for (String category : categoryList) {
+                List<String> ids = new ArrayList<>();
+                Query query = getQuery("category", category);
+
+                int count = getCount(query);
+
+                if (count > 0) {
+
+                    TopDocs docs = searcher.search(query, count);
+
+                    ScoreDoc[] hits = docs.scoreDocs;
+
+                    for (ScoreDoc hit : hits) {
+                        Document doc = searcher.doc(hit.doc);
+                        ids.add(doc.get("business_id"));
+                    }
+                }
+                map.put(category, ids);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        make60PercentText(map);
+    }
+
+    private void make60PercentText(HashMap<String, List<String>> map) {
+        int i = 1;
+        for (String category : map.keySet()) {
+            List<String> ids = map.get(category);
+            System.out.println(i);
+
+            for (String id : ids) {
+                try {
+                    IndexReader reviewReader = DirectoryReader.open(FSDirectory.open(Paths.get("reviewIndex")));
+                    searcher = new IndexSearcher(reviewReader);
+
+                    Query query = getQuery("business_id", id);
+
+                    int count = getCount(query);
+
+                    if (count > 0) {
+                        int sixtyPercent = (int) (count * 0.6);
+
+                        TopDocs results = searcher.search(query, count);
+
+                        ScoreDoc[] hits = results.scoreDocs;
+
+                        StringBuilder trainText = new StringBuilder();
+                        StringBuilder testText = new StringBuilder();
+
+                        for (ScoreDoc hit : hits) {
+                            Document doc = searcher.doc(hit.doc);
+
+                            if (trainText.length() <= sixtyPercent) {
+                                trainText.append(doc.get("REVIEW"));
+                            } else {
+                                testText.append(doc.get("REVIEW"));
+                            }
+
+                        }
+                        if (trainText.toString().length() > 0) {
+                            writeToFile(trainText.toString(), category.replace("/", ""), "trainCategory");
+                        }
+                        if (testText.toString().length() > 0) {
+                            writeToFile(testText.toString(), category.replace("/", ""), "testCategory");
+                        }
+
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            ++i;
+        }
+    }
+
+    public List<String> makeUniqueCategoryList() {
+        List<String> categoryList = new ArrayList<>();
+
+        try {
+            Fields fields = MultiFields.getFields(reader);
+            Terms terms = fields.terms("category");
+            TermsEnum termsEnum = terms.iterator();
+            while (termsEnum.next() != null) {
+                categoryList.add(termsEnum.term().utf8ToString());
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return categoryList;
     }
 }

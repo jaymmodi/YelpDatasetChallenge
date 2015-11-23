@@ -51,22 +51,26 @@ public class LuceneIndexWriter {
 
 
     private void addJSONObject(JSONObject jsonObject, String fieldName) {
-        Document document = new Document();
 
+        Document document = null;
         try {
             if (fieldName.equals("business_id")) {
                 JSONArray categoriesArray = (JSONArray) jsonObject.get("categories");
 
                 for (Object obj : categoriesArray) {
+                    document = new Document();
                     document.add(new StringField("category", obj.toString(), Field.Store.YES));
                     document.add(new StringField("business_id", jsonObject.get("business_id").toString(), Field.Store.YES));
+                    indexWriter.addDocument(document);
                 }
 
             } else {
+                document = new Document();
                 document.add(new TextField(fieldName, jsonObject.get("text").toString(), Field.Store.YES));
                 document.add(new StringField("business_id", jsonObject.get("business_id").toString(), Field.Store.YES));
+                indexWriter.addDocument(document);
             }
-            indexWriter.addDocument(document);
+
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -1,6 +1,9 @@
 package Task1;
 
 
+import org.apache.lucene.codecs.LiveDocsFormat;
+import org.apache.lucene.index.Fields;
+import org.apache.lucene.index.MultiFields;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -13,9 +16,12 @@ public class MainClass {
 
     public static void main(String[] args) {
 
-        makeIndex();
+//        makeIndex();
 //        List<String> businessIdList = searchInBusinessIndex("businessIndex");
 //        makeFiles("reviewIndex", businessIdList);
+
+
+        makeCategoryVsBusinessIdMap();
     }
 
     private static List<String> searchInBusinessIndex(String businessIndex) {
@@ -37,10 +43,24 @@ public class MainClass {
 
 //            String pathToTestFile = "/media/jay/New Volume/Jay/IUB/Fall_2015/Search/Final Project/yelp_dataset_challenge_academic_dataset/yelp_dataset_challenge_academic_dataset/yelp_dataset_challenge_academic_dataset/test.json";
 //            parseTestSet(pathToTestFile);
+
+
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
     }
+
+    private static void makeCategoryVsBusinessIdMap() {
+        String pathToBusinessFile = "businessIndexWithCategories";
+
+        Search search = new Search(pathToBusinessFile);
+        search.readIndex();
+        List<String> categoryList = search.makeUniqueCategoryList();
+        search.makeCategoryBusinessIdMap(categoryList);
+
+
+    }
+
 
     private static void parseTestSet(String pathToTestFile) {
         try {
