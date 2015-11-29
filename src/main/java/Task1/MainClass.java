@@ -1,15 +1,14 @@
 package Task1;
 
 
-import org.apache.lucene.codecs.LiveDocsFormat;
-import org.apache.lucene.index.Fields;
-import org.apache.lucene.index.MultiFields;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import javax.naming.directory.SearchControls;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MainClass {
@@ -21,7 +20,41 @@ public class MainClass {
 //        makeFiles("reviewIndex", businessIdList);
 
 
-        makeCategoryVsBusinessIdMap();
+//        makeCategoryVsBusinessIdMap();
+
+//        String pathToReviewDirectory = "/home/jay/trainCategory";
+
+//        POSIndex malletIndex = new POSIndex(pathToReviewDirectory,"POSMalletIndex");
+
+//        malletIndex.makeIndex();
+
+//        System.out.println("Mallet Index ban gaya");
+
+        searchInIndex();
+
+    }
+
+    private static void searchInIndex() {
+        List<String> tags = new ArrayList<>(Arrays.asList("NN", "NNS", "NNPS", "NNP", "JJ", "POS", "FW"));
+
+        String str = "Ray Wold was with the Ringling Brothers & Barnum & Bailey Circus for several years, meaning that he attended the world famous \"Clown College\" run by \"The Greatest Show on Earth\"®™ and learned his craft well.  He's a juggler, magician, stand-up comedian, singer, knife thrower, whip cracker, balancing artist, unicyclist, illusionist and all-around-terrific entertainer.";
+
+        POSTagger posTagger = new POSTagger();
+        String pos = null;
+        try {
+            pos = posTagger.tag(str, (ArrayList<String>) tags);
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        Search search = new Search("malletAndReviewIndex");
+
+        String query = pos;
+        System.out.println("---------------------");
+        search.findHits("review", query);
+        System.out.println("------------------------");
+        search.findHits("pos", query);
+
     }
 
     private static List<String> searchInBusinessIndex(String businessIndex) {
@@ -40,10 +73,6 @@ public class MainClass {
             luceneIndexWriter = new LuceneIndexWriter(pathToFile, "businessIndexWithCategories");
             parseAndMakeIndex(pathToFile, luceneIndexWriter, "business_id");
             luceneIndexWriter.finish();
-
-//            String pathToTestFile = "/media/jay/New Volume/Jay/IUB/Fall_2015/Search/Final Project/yelp_dataset_challenge_academic_dataset/yelp_dataset_challenge_academic_dataset/yelp_dataset_challenge_academic_dataset/test.json";
-//            parseTestSet(pathToTestFile);
-
 
         } catch (IOException | ParseException e) {
             e.printStackTrace();
@@ -72,7 +101,7 @@ public class MainClass {
 
             String text = (String) jsonObject.get("text");
             Search searchInReview = new Search("trainSet");
-            searchInReview.findHits(text);
+            searchInReview.findHits("", text);
 
         } catch (IOException | ParseException e) {
             e.printStackTrace();

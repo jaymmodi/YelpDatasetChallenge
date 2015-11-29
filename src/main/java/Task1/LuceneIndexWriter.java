@@ -52,7 +52,7 @@ public class LuceneIndexWriter {
 
     private void addJSONObject(JSONObject jsonObject, String fieldName) {
 
-        Document document = null;
+        Document document;
         try {
             if (fieldName.equals("business_id")) {
                 JSONArray categoriesArray = (JSONArray) jsonObject.get("categories");

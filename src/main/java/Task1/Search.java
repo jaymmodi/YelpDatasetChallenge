@@ -9,6 +9,8 @@ import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.*;
 import org.apache.lucene.search.similarities.BM25Similarity;
+import org.apache.lucene.search.similarities.DefaultSimilarity;
+import org.apache.lucene.search.similarities.LMDirichletSimilarity;
 import org.apache.lucene.store.FSDirectory;
 
 import java.io.BufferedWriter;
@@ -108,13 +110,13 @@ public class Search {
     }
 
 
-    public void findHits(String text) {
+    public void findHits(String field,String text) {
 
         System.out.println(text);
-        QueryParser parser = new QueryParser("REVIEW", new StandardAnalyzer());
+        QueryParser parser = new QueryParser(field, new StandardAnalyzer());
         try {
             Query query = parser.parse(QueryParser.escape(text));
-            this.searcher.setSimilarity(new BM25Similarity());
+            this.searcher.setSimilarity(new DefaultSimilarity());
 
             TopDocs results = searcher.search(query, 10);
 
@@ -122,7 +124,7 @@ public class Search {
 
             for (ScoreDoc hit : hits) {
                 Document doc = searcher.doc(hit.doc);
-                System.out.println(doc.get("business_id"));
+                System.out.println(doc.get("category"));
             }
 //            printToFile(hits, count);
         } catch (ParseException | IOException e) {
