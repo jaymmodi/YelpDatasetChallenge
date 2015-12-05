@@ -1,3 +1,5 @@
+package Task2;
+
 import java.util.ArrayList;
 
 
@@ -16,7 +18,7 @@ public class Category {
 		return this.name;
 	}
 	
-	public ArrayList<String> getSubcateories()
+	public ArrayList<String> getSubcategories()
 	{
 		return this.subcategory;
 	}
@@ -30,7 +32,7 @@ public static void main()
 	Category c = new Category("Root");
 	c.addSubcategories("a");
 	c.addSubcategories("b");
-	for (String node : c.getSubcateories()) {
+	for (String node : c.getSubcategories()) {
 		System.out.println(node);
 	}
 }
