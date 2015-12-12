@@ -3,7 +3,6 @@ package Task1;
 
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.index.CheckIndex;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
@@ -29,16 +28,16 @@ public class MainClass {
 
 //        makeCategoryVsBusinessIdMap();
 
-//        String pathToReviewDirectory = "trainCategory";
-//
-//        POSIndex posIndex = new POSIndex(pathToReviewDirectory,"POSAndReviewIndex");
-//
-//        posIndex.makeIndex();
-//
-//        System.out.println("Mallet Index ban gaya");
+        String pathToReviewDirectory = "trainCategory";
+
+        POSIndex posIndex = new POSIndex(pathToReviewDirectory,"POSAndReviewIndex");
+
+        posIndex.makeIndex();
+
+        System.out.println("Mallet Index ban gaya");
 
 
-        searchInIndex("testCategory");
+//        searchInIndex("testCategory");
 //        getAllFields();
 
 //        String review = "As a former BR employee, I'm very hard on my shopping experiences at Banana Republic as a customer. However, I had a great time shopping here with my husband on Saturday! We shopped on all 3 floors and received multiple offers for assistance. My husband was the focus of the trip, and the guys on the men's floor were very helpful. They asked what we were shopping for, guided us in the right direction, and set up a fitting room for him while we were still browsing. Next time I need/want to shop at Banana, this will definitely be the store that I head to!";
@@ -73,65 +72,67 @@ public class MainClass {
         int index = 0;
         Search search = new Search("POSAndReviewIndex");
         Search reviewIndexSearch = new Search("reviewIndex");
-//        MaxentTagger tagger = new MaxentTagger("edu/stanford/nlp/models/pos-tagger/english-left3words/english-left3words-distsim.tagger");
-//        POSTagger posTagger = new POSTagger(tagger);
+        MaxentTagger tagger = new MaxentTagger("edu/stanford/nlp/models/pos-tagger/english-left3words/english-left3words-distsim.tagger");
+        POSTagger posTagger = new POSTagger(tagger);
         Evaluation evaluation = new Evaluation(reviewIndexSearch);
 
         List<Document> testQueryHits = new ArrayList<>();
 //        List<Document> posHits = new ArrayList<>();
 
-        for (String testString : allTestStrings) {
-//        String testString = "Wish there was a choice of NO stars.  I was in this hospital for 5 very long days and it was a HORRIBLE experience.  I had a kidney infection and pneumonia and had to spend the first night in ER.  No rooms available.  There was no noise control so sleep was impossible.  Finally got a room the next day only to be kicked out because they shut the ward down over the weekend (!).  Absurd.  All I wanted was sleep - so they put me in a room full of loud visitors (I was supposed to have a private room).  Horrible experience.";
-            predictedCategories.clear();
-
-            if (testString.length() > 10) {
-//            String posString = getPOSString(posTagger, testString, tags);
-
-                evaluation.getTrueCategories(testString);
-
-                Query testQuery = search.getTextQuery("review", testString);
-//            if (posString.length() == 0) {
-//                posString = testString;
-//            }
-//            Query posQuery = search.getTextQuery("review", posString);
-
-                System.out.println("---------------------");
-                testQueryHits.clear();
-                testQueryHits = search.findHits(3, testQuery);
-                printHits(testQueryHits);
-                predictedCategories = getPredictedCategories(testQueryHits, predictedCategories);
-
-                double precisionTest = evaluation.getPrecision(predictedCategories);
-                double recallTest = evaluation.getRecall(predictedCategories);
-                System.out.println(precisionTest);
-                System.out.println(recallTest);
-                precisionTestList[index] = precisionTest;
-                recallTestList[index] = recallTest;
-
-//            System.out.println("------------------------");
-//            posHits.clear();
-//            posHits = search.findHits(7, posQuery);
-//            printHits(posHits);
+//        for (String testString : allTestStrings) {
+        String testString = "3 1/2 Stars***Decent entree. Had the lamb with spinach and rice. Really enjoyed it. The hummus was bland though. Service was better than expected. I ordered an extra rice to go, and was not charged. Nor was i charged for my club soda. \n" +
+                "\n" +
+                "Will return.";
 //            predictedCategories.clear();
-//            predictedCategories = getPredictedCategories(posHits, predictedCategories);
+
+//            if (testString.length() > 10) {
+            String posString = getPOSString(posTagger, testString, tags);
+
+//                evaluation.getTrueCategories(testString);
 //
-//            double precisionPos = evaluation.getPrecision(predictedCategories);
-//            double recallPos = evaluation.getRecall(predictedCategories);
-//            System.out.println(precisionPos);
-//            System.out.println(recallPos);
-//            precisionPosList[index] = precisionPos;
-//            recallPosList[index] = recallPos;
+//                Query testQuery = search.getTextQuery("review", testString);
+////            if (posString.length() == 0) {
+////                posString = testString;
+////            }
+////            Query posQuery = search.getTextQuery("review", posString);
+//
+//                System.out.println("---------------------");
+//                testQueryHits.clear();
+//                testQueryHits = search.findHits(3, testQuery);
+//                printHits(testQueryHits);
+//                predictedCategories = getPredictedCategories(testQueryHits, predictedCategories);
+//
+//                double precisionTest = evaluation.getPrecision(predictedCategories);
+//                double recallTest = evaluation.getRecall(predictedCategories);
+//                System.out.println(precisionTest);
+//                System.out.println(recallTest);
+//                precisionTestList[index] = precisionTest;
+//                recallTestList[index] = recallTest;
+//
+////            System.out.println("------------------------");
+////            posHits.clear();
+////            posHits = search.findHits(7, posQuery);
+////            printHits(posHits);
+////            predictedCategories.clear();
+////            predictedCategories = getPredictedCategories(posHits, predictedCategories);
+////
+////            double precisionPos = evaluation.getPrecision(predictedCategories);
+////            double recallPos = evaluation.getRecall(predictedCategories);
+////            System.out.println(precisionPos);
+////            System.out.println(recallPos);
+////            precisionPosList[index] = precisionPos;
+////            recallPosList[index] = recallPos;
+//
+////            allTestStrings.get(index).;
+//                index++;
+//            }
+//        }
 
-//            allTestStrings.get(index).;
-                index++;
-            }
-        }
-
-        printAvg(precisionTestList);
-        printAvg(recallTestList);
-        printAvg(precisionPosList);
-        printAvg(recallPosList);
-        System.out.println(evaluation.atleastOneCorrect);
+//        printAvg(precisionTestList);
+//        printAvg(recallTestList);
+//        printAvg(precisionPosList);
+//        printAvg(recallPosList);
+//        System.out.println(evaluation.atleastOneCorrect);
     }
 
     private static void printAvg(double[] list) {

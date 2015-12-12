@@ -59,9 +59,10 @@ public class POSIndex {
 
                     String reviewString = getReviewString(categoryName, pathToReviewDirectory);
 
+                    String malletString = getMalletString(categoryName);
 //                String posString = getNounsAdjectives(tags, categoryName);
 
-                    addToLucene(categoryName, reviewString);
+                    addToLucene(categoryName, reviewString, malletString);
                 }
             }
             finish();
@@ -69,6 +70,31 @@ public class POSIndex {
 
         }
 
+    }
+
+    private String getMalletString(String categoryName) {
+        File malletFile;
+
+        if (categoryName.contains("Restaurants")) {
+            malletFile = new File("malletOutput" + File.separator + "Restaurants_keys.txt");
+        } else {
+            malletFile = new File("malletOutput" + File.separator + categoryName.replace(".txt", "").replace(" ", "_") + "_keys.txt");
+        }
+        String line;
+        StringBuilder stringBuilder = new StringBuilder();
+
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(malletFile));
+            while ((line = bufferedReader.readLine()) != null) {
+                String[] split = line.split("\\t");
+
+                stringBuilder.append(split[2]).append(" ");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println(stringBuilder.toString());
+        return stringBuilder.toString();
     }
 
     private String getNounsAdjectives(List<String> tags, String categoryFile) {
@@ -106,13 +132,13 @@ public class POSIndex {
         return stringBuilder.toString();
     }
 
-    private void addToLucene(String categoryName, String reviewText) {
+    private void addToLucene(String categoryName, String reviewText, String malletString) {
 
         try {
             Document document = new Document();
             document.add(new StringField("category", categoryName, Field.Store.YES));
             document.add(new TextField("review", reviewText, Field.Store.YES));
-//            document.add(new TextField("pos", posString, Field.Store.YES));
+            document.add(new TextField("mallet", malletString, Field.Store.YES));
 
             indexWriter.addDocument(document);
         } catch (IOException e) {

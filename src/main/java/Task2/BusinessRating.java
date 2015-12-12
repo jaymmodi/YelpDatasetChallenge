@@ -49,7 +49,7 @@ public class BusinessRating {
 	public static void main(String []args) throws ParseException, IOException
 	{
 		//This file is used by WEKKA for Logistic Regression
-		String outPutFile = "Resources/logistic_regression.csv";
+		String outPutFile = "src/main/resources/logistic_regression.csv";
 		File file = new File(outPutFile);
 		FileWriter fw;
 		fw = new FileWriter(file);
@@ -78,7 +78,7 @@ public class BusinessRating {
 		FindIterable<Document> it1;
 		AggregateIterable<Document> it2;
 		//File containing all food categories
-		String fileName = "Resources/foodCategory";
+		String fileName = "src/main/resources/foodCategory";
 		//Create Index on frequent columns
 		//Just create once.
 		db.getCollection("business").createIndex(new Document("business_id",1).append("categories",1));
@@ -91,7 +91,7 @@ public class BusinessRating {
 		
 		Set<String> foodcategories = new HashSet<String>();
 		// FileReader reads text files in the default encoding.
-        FileReader fileReader = new FileReader(fileName);
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(fileName));
 
         String line;
         //Read all food categories from a given file

@@ -32,7 +32,7 @@ public class Influencers {
 	 */
 	public static void getInfluencers(String category, String location, String business_id) throws ParseException, IOException
 	{
-		String outPutFile = "resources/outputTask2.csv";
+		String outPutFile = "src/main/resources/outputTask2.csv";
 		File file = new File(outPutFile);
 		FileWriter fw;
 		fw = new FileWriter(file);
