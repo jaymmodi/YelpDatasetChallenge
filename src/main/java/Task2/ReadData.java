@@ -1,35 +1,15 @@
-import java.awt.List;
-import java.util.Date;
+package Task2;
+
+import com.mongodb.MongoClient;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Projections;
+import org.bson.Document;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import org.json.simple.JSONArray;
-
-
-import com.mongodb.BasicDBObject;
-import com.mongodb.Block;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
-import com.mongodb.Function;
-import com.mongodb.MongoClient;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import org.bson.Document;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.AggregateIterable;
-import com.mongodb.client.model.Projections;
-
-import static java.util.Arrays.asList;
+import java.util.*;
 
 public class ReadData {
 	static MongoClient mongoClient = new MongoClient();

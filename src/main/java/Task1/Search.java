@@ -8,7 +8,6 @@ import org.apache.lucene.index.*;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.*;
-import org.apache.lucene.search.similarities.BM25Similarity;
 import org.apache.lucene.store.FSDirectory;
 
 import java.io.BufferedWriter;
@@ -24,6 +23,7 @@ public class Search {
     public IndexSearcher searcher;
     public Set<String> businessIdSet;
     public Analyzer analyzer;
+    public ArrayList<Document> docs;
 
     public Search(String indexPath) {
         try {
@@ -32,6 +32,7 @@ public class Search {
             this.searcher = new IndexSearcher(reader);
             this.businessIdSet = new HashSet<>();
             this.analyzer = new StandardAnalyzer();
+            this.docs = new ArrayList<>();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -49,7 +50,7 @@ public class Search {
 
             StringBuilder fullText = new StringBuilder();
             try {
-                Query query = getQuery("business_id", id);
+                Query query = getTermQuery("business_id", id);
 
                 int count = getCount(query);
                 if (count > 0) {
@@ -74,12 +75,24 @@ public class Search {
         }
     }
 
-    private Query getQuery(String field, String id) {
-        Term term = new Term(field, id);
+    public Query getTermQuery(String field, String value) {
+        Term term = new Term(field, value);
         return new TermQuery(term);
     }
 
-    private int getCount(Query query) throws IOException {
+    public Query getTextQuery(String field, String value) {
+        QueryParser parser = new QueryParser(field, new StandardAnalyzer());
+        Query query = null;
+        try {
+            query = parser.parse(QueryParser.escape(value));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return query;
+    }
+
+    public int getCount(Query query) throws IOException {
         TotalHitCountCollector totalHitCountCollector = new TotalHitCountCollector();
         searcher.search(query, totalHitCountCollector);
 
@@ -108,26 +121,23 @@ public class Search {
     }
 
 
-    public void findHits(String text) {
-
-        System.out.println(text);
-        QueryParser parser = new QueryParser("REVIEW", new StandardAnalyzer());
+    public List<Document> findHits(int count, Query query) {
+//        ArrayList<Document> docs = new ArrayList<>();
+        this.docs.clear();
         try {
-            Query query = parser.parse(QueryParser.escape(text));
-            this.searcher.setSimilarity(new BM25Similarity());
-
-            TopDocs results = searcher.search(query, 10);
+            TopDocs results = searcher.search(query, count);
 
             ScoreDoc[] hits = results.scoreDocs;
 
             for (ScoreDoc hit : hits) {
                 Document doc = searcher.doc(hit.doc);
-                System.out.println(doc.get("business_id"));
+                this.docs.add(doc);
             }
-//            printToFile(hits, count);
-        } catch (ParseException | IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return docs;
     }
 
     public List<String> makeUniqueIdList() {
@@ -157,7 +167,7 @@ public class Search {
         try {
             for (String category : categoryList) {
                 List<String> ids = new ArrayList<>();
-                Query query = getQuery("category", category);
+                Query query = getTermQuery("category", category);
 
                 int count = getCount(query);
 
@@ -186,12 +196,13 @@ public class Search {
             List<String> ids = map.get(category);
             System.out.println(i);
 
+
             for (String id : ids) {
                 try {
                     IndexReader reviewReader = DirectoryReader.open(FSDirectory.open(Paths.get("reviewIndex")));
                     searcher = new IndexSearcher(reviewReader);
 
-                    Query query = getQuery("business_id", id);
+                    Query query = getTermQuery("business_id", id);
 
                     int count = getCount(query);
 
@@ -205,13 +216,17 @@ public class Search {
                         StringBuilder trainText = new StringBuilder();
                         StringBuilder testText = new StringBuilder();
 
+                        int reviewCount = 0;
+
                         for (ScoreDoc hit : hits) {
                             Document doc = searcher.doc(hit.doc);
 
-                            if (trainText.length() <= sixtyPercent) {
+                            if (reviewCount <= sixtyPercent) {
                                 trainText.append(doc.get("REVIEW"));
+                                reviewCount++;
                             } else {
                                 testText.append(doc.get("REVIEW"));
+                                testText.append("~~~");  //delimiter
                             }
 
                         }
@@ -249,4 +264,22 @@ public class Search {
         }
         return categoryList;
     }
+
+    public List<String> getAllFieldsNames() {
+        ArrayList<String> list = new ArrayList<>();
+
+        try {
+            Fields fields = MultiFields.getFields(reader);
+            System.out.println(fields.size());
+
+            for (String field : fields) {
+                list.add(field);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
 }
