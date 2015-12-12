@@ -21,7 +21,7 @@ public class User implements Comparable {
 	private double weightage;
 	public int isElite;
 	
-	User(){
+	public User(){
 		business = new ArrayList<Business>();
 		categories = new ArrayList<String>();
 	}

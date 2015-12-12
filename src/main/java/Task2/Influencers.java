@@ -1,39 +1,18 @@
-import java.awt.List;
+package Task2;
+
+import com.mongodb.MongoClient;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Projections;
+import org.bson.Document;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Date;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-
-
-import com.mongodb.BasicDBObject;
-import com.mongodb.Block;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
-import com.mongodb.Function;
-import com.mongodb.MongoClient;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import org.bson.Document;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.AggregateIterable;
-import com.mongodb.client.model.Projections;
-
-import static java.util.Arrays.asList;
+import java.util.*;
 /*
  * Get top influencers for a given category and a location
  * 
@@ -53,7 +32,7 @@ public class Influencers {
 	 */
 	public static void getInfluencers(String category, String location, String business_id) throws ParseException, IOException
 	{
-		String outPutFile = "Resources/outputTask2.csv";
+		String outPutFile = "resources/outputTask2.csv";
 		File file = new File(outPutFile);
 		FileWriter fw;
 		fw = new FileWriter(file);

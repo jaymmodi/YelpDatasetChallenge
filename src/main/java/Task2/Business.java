@@ -15,7 +15,7 @@ public class Business{
 	private ArrayList<Attributes> attributes;
 	private int noOfReviews;
 	private String stars;
-	Business(){
+	public Business(){
 		attributes = new ArrayList<Attributes>();
 		categories = new ArrayList<String>();
 	}
