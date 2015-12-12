@@ -47,21 +47,21 @@ public class POSIndex {
 
 
     public void makeIndex() {
-        File file = new File(this.pathToDirectory);
+        File file = new File(this.pathToReviewDirectory);
         List<String> tags = new ArrayList<>(Arrays.asList("NN", "NNS", "NNPS", "NNP", "JJ", "POS", "FW"));
 
         if (file.isDirectory()) {
             for (File categoryFile : file.listFiles()) {
 
-                if (categoryFile.getName().endsWith("_keys.txt")) {
-                    String categoryName = categoryFile.getName().replace("_keys.txt", "");
-                    System.out.println(categoryFile.getName());
+                String categoryName = categoryFile.getName();
+                if (categoryName.endsWith(".txt")) {
+                    System.out.println(categoryName);
 
                     String reviewString = getReviewString(categoryName, pathToReviewDirectory);
 
-                    String posString = getNounsAdjectives(reviewString, tags);
+//                String posString = getNounsAdjectives(tags, categoryName);
 
-                    addToLucene(categoryName, posString);
+                    addToLucene(categoryName, reviewString);
                 }
             }
             finish();
@@ -71,22 +71,28 @@ public class POSIndex {
 
     }
 
-    private String getNounsAdjectives(String reviewString, List<String> tags) {
-        POSTagger posTagger = new POSTagger();
-        String posString = "";
-
+    private String getNounsAdjectives(List<String> tags, String categoryFile) {
+//        POSTagger posTagger = new POSTagger();
+        File file = new File(pathToReviewDirectory + File.separator + categoryFile);
+        StringBuilder posStringBuilder = new StringBuilder();
         try {
-            posString = posTagger.tag(reviewString, (ArrayList<String>) tags);
-        } catch (IOException | ClassNotFoundException e) {
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String line;
+            String posString;
+            while ((line = br.readLine()) != null) {
+//                posString = posTagger.tag(line, (ArrayList<String>) tags);
+//                posStringBuilder.append(posString);
+            }
+            System.out.println(posStringBuilder.toString());
+        } catch (IOException e) {
             e.printStackTrace();
         }
-
-        return posString;
+        return posStringBuilder.toString();
     }
 
 
     private String getReviewString(String categoryFile, String pathToReviewDirectory) {
-        File file = new File(pathToReviewDirectory + File.separator + categoryFile + ".txt");
+        File file = new File(pathToReviewDirectory + File.separator + categoryFile);
         StringBuilder stringBuilder = new StringBuilder();
         try {
             BufferedReader br = new BufferedReader(new FileReader(file));
@@ -94,19 +100,19 @@ public class POSIndex {
             while ((line = br.readLine()) != null) {
                 stringBuilder.append(line);
             }
-            System.out.println(stringBuilder.toString());
         } catch (IOException e) {
             e.printStackTrace();
         }
         return stringBuilder.toString();
     }
 
-    private void addToLucene(String categoryName, String indexString) {
+    private void addToLucene(String categoryName, String reviewText) {
 
         try {
             Document document = new Document();
             document.add(new StringField("category", categoryName, Field.Store.YES));
-            document.add(new TextField("posMallet", indexString, Field.Store.YES));
+            document.add(new TextField("review", reviewText, Field.Store.YES));
+//            document.add(new TextField("pos", posString, Field.Store.YES));
 
             indexWriter.addDocument(document);
         } catch (IOException e) {

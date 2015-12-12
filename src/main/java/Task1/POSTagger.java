@@ -10,10 +10,13 @@ import java.util.ArrayList;
  */
 public class POSTagger {
 
+    public MaxentTagger tagger;
+
+    public POSTagger(MaxentTagger tagger) {
+        this.tagger = tagger;
+    }
 
     public String tag(String str, ArrayList<String> tags) throws IOException, ClassNotFoundException {
-        MaxentTagger tagger = new MaxentTagger("edu/stanford/nlp/models/pos-tagger/english-left3words/english-left3words-distsim.tagger");
-
 
         String tagged = tagger.tagString(str);
 
