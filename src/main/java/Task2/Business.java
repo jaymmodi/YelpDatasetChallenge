@@ -1,5 +1,8 @@
 import java.util.ArrayList;
-
+/*
+ * Yelp Business
+ * 
+ */
 public class Business{
 	private String name;
 	private String business_id;
@@ -8,7 +11,8 @@ public class Business{
 	private String city;
 	private ArrayList<String> categories;
 	private ArrayList<Attributes> attributes;
-	
+	private int noOfReviews;
+	private String stars;
 	Business(){
 		attributes = new ArrayList<Attributes>();
 		categories = new ArrayList<String>();
@@ -21,6 +25,24 @@ public class Business{
 	public void setName(String name)
 	{
 		this.name = name;
+	}
+	
+	public String getStars()
+	{
+		return stars;
+	}
+	public void setStars(String stars)
+	{
+		this.stars = stars;
+	}
+	
+	public int getNoOfReviews()
+	{
+		return noOfReviews;
+	}
+	public void setNoOfReviews(int reviews)
+	{
+		this.noOfReviews = reviews;
 	}
 	
 	public String getBusinessId()

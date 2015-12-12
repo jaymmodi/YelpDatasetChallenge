@@ -1,5 +1,8 @@
 import java.util.ArrayList;
-
+/*
+ * yelp users
+ * 
+ */
 public class User implements Comparable {
 	private String name;
 	private String user_id;
@@ -10,10 +13,11 @@ public class User implements Comparable {
 	private int usefulVotes;
 	private int coolVotes;
 	private int totalVotes;
-	private float stars;
+	private double stars;
 	private int review;
 	private int noOfFans;
 	private double weightage;
+	public int isElite;
 	
 	User(){
 		business = new ArrayList<Business>();
@@ -28,6 +32,15 @@ public class User implements Comparable {
 	public void setName(String name)
 	{
 		this.name = name;
+	}
+	public double getStars()
+	{
+		return stars;
+	}
+	
+	public void setStars(double star)
+	{
+		this.stars = star;
 	}
 	public int getfunnyVotes()
 	{
