@@ -4,8 +4,6 @@ package Task1;
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -24,33 +22,32 @@ public class MainClass {
 
     public static void main(String[] args) {
 
-//        makeIndex();
-//        List<String> businessIdList = searchInBusinessIndex("businessIndex");
-//        makeFiles("reviewIndex", businessIdList);
+        makeIndex();
+        List<String> businessIdList = searchInBusinessIndex("businessIndex");
+        makeFiles("reviewIndex", businessIdList);
 
+        makeCategoryVsBusinessIdMap();
 
-//        makeCategoryVsBusinessIdMap();
+        makePOSMalletIndex();
 
-        String pathToReviewDirectory = "trainCategory";
-
-        POSIndex posIndex = new POSIndex(pathToReviewDirectory,"POSAndReviewIndex");
-
-        posIndex.makeIndex();
-
-        System.out.println("Mallet Index ban gaya");
-
-
-//        searchInIndex("testCategory");
-//        getAllFields();
-
-//        String review = "As a former BR employee, I'm very hard on my shopping experiences at Banana Republic as a customer. However, I had a great time shopping here with my husband on Saturday! We shopped on all 3 floors and received multiple offers for assistance. My husband was the focus of the trip, and the guys on the men's floor were very helpful. They asked what we were shopping for, guided us in the right direction, and set up a fitting room for him while we were still browsing. Next time I need/want to shop at Banana, this will definitely be the store that I head to!";
-//        getTrueCategories(review);
-
-
+        searchInIndex("testCategory");
     }
 
     /**
-     *  This method is a helper method to print all field names in the index.
+        This method is used to create POS and Mallet Index. An enriched Index.
+     */
+    private static void makePOSMalletIndex() {
+        String pathToReviewDirectory = "trainCategory";
+
+        POSIndex posIndex = new POSIndex(pathToReviewDirectory, "POSAndReviewIndex");
+
+        posIndex.makeIndex();
+
+        System.out.println("Index has been made");
+    }
+
+    /**
+     * This method is a helper method to print all field names in the index.
      */
     private static void getAllFields() {
         Search search = new Search("reviewIndex");
@@ -64,6 +61,7 @@ public class MainClass {
 
     /**
      * This method will search in train index for all test data and print cumulative precision and recall.
+     *
      * @param directoryName
      */
     private static void searchInIndex(String directoryName) {
@@ -86,66 +84,64 @@ public class MainClass {
         Evaluation evaluation = new Evaluation(reviewIndexSearch);
 
         List<Document> testQueryHits = new ArrayList<>();
-//        List<Document> posHits = new ArrayList<>();
+        List<Document> posHits = new ArrayList<>();
 
-//        for (String testString : allTestStrings) {
-        String testString = "3 1/2 Stars***Decent entree. Had the lamb with spinach and rice. Really enjoyed it. The hummus was bland though. Service was better than expected. I ordered an extra rice to go, and was not charged. Nor was i charged for my club soda. \n" +
-                "\n" +
-                "Will return.";
-//            predictedCategories.clear();
+        for (String testString : allTestStrings) {
 
-//            if (testString.length() > 10) {
-            String posString = getPOSString(posTagger, testString, tags);
+            predictedCategories.clear();
 
-//                evaluation.getTrueCategories(testString);
-//
-//                Query testQuery = search.getTextQuery("review", testString);
-////            if (posString.length() == 0) {
-////                posString = testString;
-////            }
-////            Query posQuery = search.getTextQuery("review", posString);
-//
-//                System.out.println("---------------------");
-//                testQueryHits.clear();
-//                testQueryHits = search.findHits(3, testQuery);
-//                printHits(testQueryHits);
-//                predictedCategories = getPredictedCategories(testQueryHits, predictedCategories);
-//
-//                double precisionTest = evaluation.getPrecision(predictedCategories);
-//                double recallTest = evaluation.getRecall(predictedCategories);
-//                System.out.println(precisionTest);
-//                System.out.println(recallTest);
-//                precisionTestList[index] = precisionTest;
-//                recallTestList[index] = recallTest;
-//
-////            System.out.println("------------------------");
-////            posHits.clear();
-////            posHits = search.findHits(7, posQuery);
-////            printHits(posHits);
-////            predictedCategories.clear();
-////            predictedCategories = getPredictedCategories(posHits, predictedCategories);
-////
-////            double precisionPos = evaluation.getPrecision(predictedCategories);
-////            double recallPos = evaluation.getRecall(predictedCategories);
-////            System.out.println(precisionPos);
-////            System.out.println(recallPos);
-////            precisionPosList[index] = precisionPos;
-////            recallPosList[index] = recallPos;
-//
-////            allTestStrings.get(index).;
-//                index++;
-//            }
-//        }
+            if (testString.length() > 10) {
+                String posString = getPOSString(posTagger, testString, tags);
 
-//        printAvg(precisionTestList);
-//        printAvg(recallTestList);
-//        printAvg(precisionPosList);
-//        printAvg(recallPosList);
-//        System.out.println(evaluation.atleastOneCorrect);
+                evaluation.getTrueCategories(testString);
+
+                Query testQuery = search.getTextQuery("review", testString);
+                if (posString.length() == 0) {
+                    posString = testString;
+                }
+                Query posQuery = search.getTextQuery("review", posString);
+
+                System.out.println("---------------------");
+                testQueryHits.clear();
+                testQueryHits = search.findHits(3, testQuery);
+                printHits(testQueryHits);
+                predictedCategories = getPredictedCategories(testQueryHits, predictedCategories);
+
+                double precisionTest = evaluation.getPrecision(predictedCategories);
+                double recallTest = evaluation.getRecall(predictedCategories);
+                System.out.println(precisionTest);
+                System.out.println(recallTest);
+                precisionTestList[index] = precisionTest;
+                recallTestList[index] = recallTest;
+
+                System.out.println("------------------------");
+                posHits.clear();
+                posHits = search.findHits(7, posQuery);
+                printHits(posHits);
+                predictedCategories.clear();
+                predictedCategories = getPredictedCategories(posHits, predictedCategories);
+
+                double precisionPos = evaluation.getPrecision(predictedCategories);
+                double recallPos = evaluation.getRecall(predictedCategories);
+                System.out.println(precisionPos);
+                System.out.println(recallPos);
+                precisionPosList[index] = precisionPos;
+                recallPosList[index] = recallPos;
+
+                index++;
+            }
+        }
+
+        printAvg(precisionTestList);
+        printAvg(recallTestList);
+        printAvg(precisionPosList);
+        printAvg(recallPosList);
+        System.out.println(evaluation.atleastOneCorrect);
     }
 
     /**
      * This method will print avg of all the precision and recall.
+     *
      * @param list
      */
     private static void printAvg(double[] list) {
@@ -159,6 +155,7 @@ public class MainClass {
 
     /**
      * This method will return all test reviews from a particular test file.
+     *
      * @param fileName
      * @return
      */
@@ -184,7 +181,8 @@ public class MainClass {
     }
 
     /**
-     *  This method will return the POS string for a given input test string.
+     * This method will return the POS string for a given input test string.
+     *
      * @param posTagger
      * @param testString
      * @param tags
@@ -203,7 +201,8 @@ public class MainClass {
     }
 
     /**
-     *  This method will return the predicted queries by algorithm.
+     * This method will return the predicted queries by algorithm.
+     *
      * @param testQueryHits
      * @param predictedCategories
      * @return
@@ -220,16 +219,17 @@ public class MainClass {
             }
         }
 
-//        if (!predictedCategories.contains("Restaurants")) {
-//            predictedCategories.remove(predictedCategories.size() - 1);
-//            predictedCategories.add("Restaurants");
-//        }
+        if (!predictedCategories.contains("Restaurants")) {
+            predictedCategories.remove(predictedCategories.size() - 1);
+            predictedCategories.add("Restaurants");
+        }
 
         return predictedCategories;
     }
 
     /**
-     *  This method will print the hits given the list of documents.
+     * This method will print the hits given the list of documents.
+     *
      * @param hits
      */
     private static void printHits(List<Document> hits) {
@@ -239,7 +239,8 @@ public class MainClass {
     }
 
     /**
-     *  This method is used to search in business index.
+     * This method is used to search in business index.
+     *
      * @param businessIndex
      * @return
      */
@@ -249,7 +250,7 @@ public class MainClass {
     }
 
     /**
-     *  This method is used to make businessId vs review text
+     * This method is used to make businessId vs review text
      */
     private static void makeIndex() {
         LuceneIndexWriter luceneIndexWriter;
@@ -269,7 +270,7 @@ public class MainClass {
     }
 
     /**
-     *  This method is used to make category name vs business Id map.
+     * This method is used to make category name vs business Id map.
      */
     private static void makeCategoryVsBusinessIdMap() {
         String pathToBusinessFile = "businessIndexWithCategories";
@@ -283,7 +284,8 @@ public class MainClass {
     }
 
     /**
-     *  This method searches in tip and review index
+     * This method searches in tip and review index
+     *
      * @param indexPath
      * @param businessIdList
      */
@@ -296,7 +298,8 @@ public class MainClass {
     }
 
     /**
-     *  This method makes index of 1.6 million records by reading 10,000 lines at a time. (Batch processing).
+     * This method makes index of 1.6 million records by reading 10,000 lines at a time. (Batch processing).
+     *
      * @param pathToJsonFile
      * @param luceneIndexWriter
      * @param review
@@ -326,7 +329,8 @@ public class MainClass {
     }
 
     /**
-     *  This method calls the generic class to make index.
+     * This method calls the generic class to make index.
+     *
      * @param index
      * @param jsonObjects
      * @param luceneIndexWriter

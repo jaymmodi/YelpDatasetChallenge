@@ -1,7 +1,7 @@
 #!/bin/bash
-# My first script
+# Script to create most probable words from mallet.
 
-echo "Hello World!"
+echo "Mallet World!"
 
 cd /home/jay/test
 for f in *.txt
