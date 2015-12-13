@@ -17,6 +17,9 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.*;
 
+/**
+ * This class is used to search in any Lucene Index
+ */
 public class Search {
     public IndexReader reader;
     public String indexPath;
@@ -39,11 +42,18 @@ public class Search {
     }
 
 
+    /**
+     * This method reads index and prints the number of documents in the index.
+     */
     public void readIndex() {
         int totalNumberOfDocs = reader.maxDoc();
         System.out.println(totalNumberOfDocs);
     }
 
+    /**
+     * This method splits the whole review text into 60% train data and 40% test data for all business categories.
+     * @param businessIdList
+     */
     public void makeFiles(List<String> businessIdList) {
 
         for (String id : businessIdList) {
@@ -68,6 +78,12 @@ public class Search {
         }
     }
 
+    /**
+     *  This method appends all text for a particular business category.
+     * @param fullText
+     * @param hits
+     * @throws IOException
+     */
     private void makeText(StringBuilder fullText, ScoreDoc[] hits) throws IOException {
         for (ScoreDoc hit : hits) {
             Document doc = searcher.doc(hit.doc);
@@ -75,11 +91,23 @@ public class Search {
         }
     }
 
+    /**
+     *  This method returns TermQuery for a given string text and field name.
+     * @param field
+     * @param value
+     * @return
+     */
     public Query getTermQuery(String field, String value) {
         Term term = new Term(field, value);
         return new TermQuery(term);
     }
 
+    /**
+     *  This method returns Text Query for a given string text and field name.
+     * @param field
+     * @param value
+     * @return
+     */
     public Query getTextQuery(String field, String value) {
         QueryParser parser = new QueryParser(field, new StandardAnalyzer());
         Query query = null;
@@ -92,6 +120,12 @@ public class Search {
         return query;
     }
 
+    /**
+     *This method returns the count of total hits for a particular query.
+     * @param query
+     * @return count
+     * @throws IOException
+     */
     public int getCount(Query query) throws IOException {
         TotalHitCountCollector totalHitCountCollector = new TotalHitCountCollector();
         searcher.search(query, totalHitCountCollector);
@@ -99,7 +133,12 @@ public class Search {
         return totalHitCountCollector.getTotalHits();
     }
 
-
+    /**
+     *  This method writes 60% text to train file and 40% to test file.
+     * @param fullText
+     * @param id
+     * @param directoryName
+     */
     private void writeToFile(String fullText, String id, String directoryName) {
         String workingDirectory = System.getProperty("user.dir");
         File file = new File(workingDirectory + "/" + directoryName + "/" + id + ".txt");
@@ -116,11 +155,20 @@ public class Search {
         }
     }
 
+    /**
+     *  This method makes a set of all business categories.
+     * @param business_id
+     */
     private void makeSetBusinessIds(String business_id) {
         businessIdSet.add(business_id);
     }
 
-
+    /**
+     *  THis method returns the top 'count' hits for a particular query.
+     * @param count
+     * @param query
+     * @return
+     */
     public List<Document> findHits(int count, Query query) {
 //        ArrayList<Document> docs = new ArrayList<>();
         this.docs.clear();
@@ -140,6 +188,10 @@ public class Search {
         return docs;
     }
 
+    /**
+     *  This method creates list of all unique business categories.
+     * @return
+     */
     public List<String> makeUniqueIdList() {
         List<LeafReaderContext> leafReaderContexts = reader.getContext().leaves();
         System.out.println(leafReaderContexts.size());
@@ -162,6 +214,10 @@ public class Search {
         return businessIdList;
     }
 
+    /**
+     *
+     * This method creates a category vs business id map.
+     */
     public void makeCategoryBusinessIdMap(List<String> categoryList) {
         HashMap<String, List<String>> map = new HashMap<>();
         try {
@@ -190,6 +246,10 @@ public class Search {
         make60PercentText(map);
     }
 
+    /**
+     *  This file makes 60% text.
+     * @param map
+     */
     private void make60PercentText(HashMap<String, List<String>> map) {
         int i = 1;
         for (String category : map.keySet()) {
@@ -248,6 +308,10 @@ public class Search {
         }
     }
 
+    /**
+     *  This method returns the list of unique categories in the corpus.
+     * @return
+     */
     public List<String> makeUniqueCategoryList() {
         List<String> categoryList = new ArrayList<>();
 
@@ -265,6 +329,10 @@ public class Search {
         return categoryList;
     }
 
+    /**
+     * This method returns all returns all field Names for a given lucene index.
+     * @return
+     */
     public List<String> getAllFieldsNames() {
         ArrayList<String> list = new ArrayList<>();
 

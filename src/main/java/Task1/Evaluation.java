@@ -11,8 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by jay on 12/5/15.
- */
+ * This class calculates precision and recall.
+ *
+ * */
 public class Evaluation {
 
     public List<String> trueCategories;
@@ -30,6 +31,10 @@ public class Evaluation {
         this.atleastOneCorrect = 0;
     }
 
+    /**
+     * This method returns trueCategories for a particular review
+     * @param review
+     */
     public void getTrueCategories(String review) {
 
         Query query = null;
@@ -48,6 +53,10 @@ public class Evaluation {
 
     }
 
+    /**
+     * This method finds all the categories for a given a business_id.
+     * @param business_id
+     */
     private void getCategories(String business_id) {
         this.trueCategories.clear();
         Query query = this.businessIndexSearch.getTermQuery("business_id", business_id);
@@ -70,7 +79,11 @@ public class Evaluation {
         }
     }
 
-
+    /**
+     * This method calculates precision
+     * @param predictedCategories
+     * @return precision
+     */
     public double getPrecision(List<String> predictedCategories) {
 
         int truePositive = getTruePositive(predictedCategories);
@@ -85,6 +98,11 @@ public class Evaluation {
         return ((double) truePositive / (truePositive + falsePositive));
     }
 
+    /**
+     * This method calculates truePositives given the predictedCategories
+     * @param predictedCategories
+     * @return
+     */
     private int getTruePositive(List<String> predictedCategories) {
         int truePositive = 0;
         for (String predictedCategory : predictedCategories) {
@@ -97,6 +115,11 @@ public class Evaluation {
 
     }
 
+    /**
+     * This method calculates Recall
+     * @param predictedCategories
+     * @return
+     */
     public double getRecall(List<String> predictedCategories) {
         int truePositive = getTruePositive(predictedCategories);
 

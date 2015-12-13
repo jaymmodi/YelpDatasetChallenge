@@ -17,7 +17,8 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Created by jay on 11/28/15.
+ *
+ * This class is a which adds POS tagged words in lucene.
  */
 public class POSIndex {
 
@@ -45,7 +46,9 @@ public class POSIndex {
 
     }
 
-
+    /**
+     * This method makes lucene index with 60% text and probable words given mallet.
+     */
     public void makeIndex() {
         File file = new File(this.pathToReviewDirectory);
         List<String> tags = new ArrayList<>(Arrays.asList("NN", "NNS", "NNPS", "NNP", "JJ", "POS", "FW"));
@@ -60,18 +63,21 @@ public class POSIndex {
                     String reviewString = getReviewString(categoryName, pathToReviewDirectory);
 
                     String malletString = getMalletString(categoryName);
-//                String posString = getNounsAdjectives(tags, categoryName);
 
                     addToLucene(categoryName, reviewString, malletString);
                 }
             }
             finish();
-
-
         }
 
     }
 
+    /**
+     * This method returns all important words returned by Mallet for a particular word.
+     * @param categoryName
+     * @return malletString
+     *
+     */
     private String getMalletString(String categoryName) {
         File malletFile;
 
@@ -97,6 +103,12 @@ public class POSIndex {
         return stringBuilder.toString();
     }
 
+    /**
+     * This method returns nouns and adjectives for a particular string
+     * @param tags
+     * @param categoryFile
+     * @return
+     */
     private String getNounsAdjectives(List<String> tags, String categoryFile) {
 //        POSTagger posTagger = new POSTagger();
         File file = new File(pathToReviewDirectory + File.separator + categoryFile);
@@ -116,7 +128,12 @@ public class POSIndex {
         return posStringBuilder.toString();
     }
 
-
+    /**
+     * This method returns 60% text for a particular category.
+     * @param categoryFile
+     * @param pathToReviewDirectory
+     * @return
+     */
     private String getReviewString(String categoryFile, String pathToReviewDirectory) {
         File file = new File(pathToReviewDirectory + File.separator + categoryFile);
         StringBuilder stringBuilder = new StringBuilder();
@@ -132,6 +149,12 @@ public class POSIndex {
         return stringBuilder.toString();
     }
 
+    /**
+     * This method creates a lucene document and adds it to lucene.
+     * @param categoryName
+     * @param reviewText
+     * @param malletString
+     */
     private void addToLucene(String categoryName, String reviewText, String malletString) {
 
         try {
@@ -147,7 +170,9 @@ public class POSIndex {
 
     }
 
-
+    /**
+     * This method commits all documents to lucene.
+     */
     public void finish() {
         try {
             indexWriter.forceMerge(1);

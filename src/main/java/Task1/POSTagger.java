@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * Created by jay on 11/28/15.
+ * This class is a generic class which returns POS tagged for a given string.
  */
 public class POSTagger {
 
@@ -16,6 +16,14 @@ public class POSTagger {
         this.tagger = tagger;
     }
 
+    /**
+     * This method returns POS tagged string for a given input string.
+     * @param str
+     * @param tags
+     * @return
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
     public String tag(String str, ArrayList<String> tags) throws IOException, ClassNotFoundException {
 
         String tagged = tagger.tagString(str);
@@ -27,8 +35,8 @@ public class POSTagger {
         for (String s : split) {
             int lastIndex = s.lastIndexOf("_");
             if (tags.contains(s.substring(lastIndex + 1))) {
-                String substr = s.substring(0, lastIndex);
-                stringBuilder.append(substr + " ");
+                String substring = s.substring(0, lastIndex);
+                stringBuilder.append(substring + " ");
             }
         }
 

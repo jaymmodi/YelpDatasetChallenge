@@ -18,6 +18,10 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
+/**
+ *
+ * This is a generic class which creates Lucene Index
+ */
 public class LuceneIndexWriter {
 
     Analyzer analyzer;
@@ -42,14 +46,22 @@ public class LuceneIndexWriter {
         }
     }
 
-
+    /**
+     * This method adds documents to lucene
+     * @param jsonObjects
+     * @param fieldName
+     */
     public void createIndex(ArrayList<JSONObject> jsonObjects, String fieldName) {
         for (JSONObject jsonObject : jsonObjects) {
             addJSONObject(jsonObject, fieldName);
         }
     }
 
-
+    /**
+     * This method creates Lucene Document and adds it to lucene.
+     * @param jsonObject
+     * @param fieldName
+     */
     private void addJSONObject(JSONObject jsonObject, String fieldName) {
 
         Document document;
@@ -78,6 +90,9 @@ public class LuceneIndexWriter {
 
     }
 
+    /**
+     * This method merges all segments to 1 segment and commits all documents into lucene.
+     */
     public void finish() {
         try {
             indexWriter.forceMerge(1);

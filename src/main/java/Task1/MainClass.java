@@ -17,6 +17,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * This is the driver class for our project.
+ */
 public class MainClass {
 
     public static void main(String[] args) {
@@ -46,7 +49,9 @@ public class MainClass {
 
     }
 
-
+    /**
+     *  This method is a helper method to print all field names in the index.
+     */
     private static void getAllFields() {
         Search search = new Search("reviewIndex");
         List<String> allFieldsNames = search.getAllFieldsNames();
@@ -57,6 +62,10 @@ public class MainClass {
 
     }
 
+    /**
+     * This method will search in train index for all test data and print cumulative precision and recall.
+     * @param directoryName
+     */
     private static void searchInIndex(String directoryName) {
 
         List<String> allTestStrings = getAllStrings(directoryName);
@@ -135,6 +144,10 @@ public class MainClass {
 //        System.out.println(evaluation.atleastOneCorrect);
     }
 
+    /**
+     * This method will print avg of all the precision and recall.
+     * @param list
+     */
     private static void printAvg(double[] list) {
         double sum = 0.0;
         for (Double aDouble : list) {
@@ -144,6 +157,11 @@ public class MainClass {
         System.out.println(sum / list.length);
     }
 
+    /**
+     * This method will return all test reviews from a particular test file.
+     * @param fileName
+     * @return
+     */
     private static List<String> getAllStrings(String fileName) {
         fileName = "Hospitals.txt";
         Path path = Paths.get("testCategory", fileName);
@@ -165,6 +183,13 @@ public class MainClass {
         return Arrays.asList(stringBuilder.toString().split("~~~"));
     }
 
+    /**
+     *  This method will return the POS string for a given input test string.
+     * @param posTagger
+     * @param testString
+     * @param tags
+     * @return
+     */
     private static String getPOSString(POSTagger posTagger, String testString, List<String> tags) {
         String posString = testString;
 
@@ -177,6 +202,12 @@ public class MainClass {
         return posString;
     }
 
+    /**
+     *  This method will return the predicted queries by algorithm.
+     * @param testQueryHits
+     * @param predictedCategories
+     * @return
+     */
     private static List<String> getPredictedCategories(List<Document> testQueryHits, List<String> predictedCategories) {
         for (Document testQueryHit : testQueryHits) {
             String category = testQueryHit.get("category").replace(".txt", "");
@@ -197,17 +228,29 @@ public class MainClass {
         return predictedCategories;
     }
 
+    /**
+     *  This method will print the hits given the list of documents.
+     * @param hits
+     */
     private static void printHits(List<Document> hits) {
         for (Document hit : hits) {
             System.out.println(hit.get("category"));
         }
     }
 
+    /**
+     *  This method is used to search in business index.
+     * @param businessIndex
+     * @return
+     */
     private static List<String> searchInBusinessIndex(String businessIndex) {
         Search searchInReview = new Search(businessIndex);
         return searchInReview.makeUniqueIdList();
     }
 
+    /**
+     *  This method is used to make businessId vs review text
+     */
     private static void makeIndex() {
         LuceneIndexWriter luceneIndexWriter;
         try {
@@ -225,6 +268,9 @@ public class MainClass {
         }
     }
 
+    /**
+     *  This method is used to make category name vs business Id map.
+     */
     private static void makeCategoryVsBusinessIdMap() {
         String pathToBusinessFile = "businessIndexWithCategories";
 
@@ -236,33 +282,27 @@ public class MainClass {
 
     }
 
-
-    private static void parseTestSet(String pathToTestFile) {
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(new File(pathToTestFile)));
-            JSONParser jsonParser = new JSONParser();
-            String line = br.readLine();
-
-            JSONObject jsonObject = (JSONObject) jsonParser.parse(line);
-
-            String text = (String) jsonObject.get("text");
-            Search searchInReview = new Search("trainSet");
-//            searchInReview.findHits(0, query);
-
-        } catch (IOException | ParseException e) {
-            e.printStackTrace();
-        }
-
-    }
-
+    /**
+     *  This method searches in tip and review index
+     * @param indexPath
+     * @param businessIdList
+     */
     private static void makeFiles(String indexPath, List<String> businessIdList) {
         Search searchInReview = new Search(indexPath);
         searchInReview.makeFiles(businessIdList);
 
-//        Search searchInTip = new Search("tipIndex");
-//        searchInTip.readIndex();
+        Search searchInTip = new Search("tipIndex");
+        searchInTip.readIndex();
     }
 
+    /**
+     *  This method makes index of 1.6 million records by reading 10,000 lines at a time. (Batch processing).
+     * @param pathToJsonFile
+     * @param luceneIndexWriter
+     * @param review
+     * @throws IOException
+     * @throws ParseException
+     */
     private static void parseAndMakeIndex(String pathToJsonFile, LuceneIndexWriter luceneIndexWriter, String review) throws IOException, ParseException {
         BufferedReader br = new BufferedReader(new FileReader(new File(pathToJsonFile)));
         ArrayList<JSONObject> jsonObjects = new ArrayList<>();
@@ -285,6 +325,13 @@ public class MainClass {
         }
     }
 
+    /**
+     *  This method calls the generic class to make index.
+     * @param index
+     * @param jsonObjects
+     * @param luceneIndexWriter
+     * @param fieldName
+     */
     private static void makeIndex(int index, ArrayList<JSONObject> jsonObjects, LuceneIndexWriter luceneIndexWriter, String fieldName) {
         System.out.println(index);
         System.out.println(jsonObjects.size());
